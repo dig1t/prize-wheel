@@ -1,0 +1,217 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-display: var(--font-display);
+  --font-ui: var(--font-ui);
+}
+
+:root {
+  /* midnight game-show palette */
+  --ink: #0b0713;
+  --ink-2: #150b26;
+  --gold: #ffcf5c;
+  --gold-deep: #f5a623;
+  --hot: #ff3d78;
+  --cream: #fff7ea;
+  --on-accent: #1a1030;
+  --glow: #7850ff;
+  --confetti-1: #5ce1e6;
+  --confetti-2: #a06bff;
+  --confetti-3: #7dff9b;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  color: var(--cream);
+  font-family: var(--font-ui), system-ui, sans-serif;
+  background-color: var(--ink);
+  background-image:
+    radial-gradient(120% 90% at 82% 18%, color-mix(in srgb, var(--hot) 22%, transparent), transparent 55%),
+    radial-gradient(110% 80% at 12% 96%, color-mix(in srgb, var(--gold) 18%, transparent), transparent 50%),
+    radial-gradient(90% 70% at 50% 0%, color-mix(in srgb, var(--glow) 16%, transparent), transparent 60%),
+    linear-gradient(160deg, var(--ink-2), var(--ink) 60%);
+  overflow: hidden;
+}
+
+/* faint radial spotlight rays behind the stage */
+.stage-rays::before {
+  content: "";
+  position: fixed;
+  /* big square centered on the ray hub (75.2vw, 66.8vh) so the gradient center
+     and the rotation pivot coincide and its edges stay offscreen while it spins */
+  left: calc(75.2vw - 110vmax);
+  top: calc(66.8vh - 110vmax);
+  width: 220vmax;
+  height: 220vmax;
+  background: repeating-conic-gradient(
+    from 0deg,
+    rgba(255, 255, 255, 0.035) 0deg 6deg,
+    transparent 6deg 12deg
+  );
+  animation: rays-drift 60s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes rays-drift {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* fine grain overlay */
+.grain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* the spinning wheel layer — composited */
+.wheel-spin {
+  will-change: transform;
+  transform: rotate(var(--rot, 0deg));
+}
+
+.wheel-spin.is-spinning {
+  transition: transform 5600ms var(--ease-out-expo);
+}
+
+/* entrance choreography */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rise-in {
+  opacity: 0;
+  animation: rise-in 0.7s var(--ease-out-expo) forwards;
+}
+
+@keyframes wheel-in {
+  from {
+    opacity: 0;
+    transform: rotate(-40deg) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+/* pointer tick nudge while spinning */
+@keyframes pointer-tick {
+  0%,
+  100% {
+    transform: rotate(30deg);
+  }
+  50% {
+    transform: rotate(23deg);
+  }
+}
+
+/* winner overlay */
+@keyframes overlay-fade {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(6px);
+  }
+}
+
+@keyframes trophy-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  60% {
+    transform: scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes label-sweep {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+    letter-spacing: 0.2em;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    letter-spacing: -0.01em;
+  }
+}
+
+@keyframes eyebrow-in {
+  from {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* confetti fall */
+@keyframes confetti-fall {
+  to {
+    transform: translate3d(var(--dx, 0), 112vh, 0) rotate(var(--spin, 720deg));
+    opacity: 1;
+  }
+}
+
+/* CTA pulse */
+@keyframes cta-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--gold) 45%, transparent), 0 18px 50px -12px rgba(0, 0, 0, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 18px transparent, 0 18px 50px -12px rgba(0, 0, 0, 0.7);
+  }
+}
+
+.cta-idle {
+  animation: cta-glow 2.6s ease-in-out infinite;
+}
+
+.press:active {
+  transform: scale(0.96);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .stage-rays::before {
+    animation: none;
+  }
+}
