@@ -6,6 +6,7 @@ import SettingsPanel from "@/components/SettingsPanel";
 import SponsorLockup from "@/components/SponsorLockup";
 import WinnerOverlay from "@/components/WinnerOverlay";
 import {
+  AUTO_CLOSE_MS,
   DEFAULT_CONFIG,
   getWinnerIndex,
   loadConfig,
@@ -39,6 +40,13 @@ export default function Home() {
       if (revealTimer.current) clearTimeout(revealTimer.current);
     };
   }, []);
+
+  // auto-dismiss the winner screen after a beat, when enabled
+  useEffect(() => {
+    if (!winner || !config.autoClose) return;
+    const t = setTimeout(() => setWinner(null), AUTO_CLOSE_MS);
+    return () => clearTimeout(t);
+  }, [winner, config.autoClose]);
 
   // hydrate from localStorage after mount (avoids SSR mismatch)
   useEffect(() => {
@@ -230,6 +238,7 @@ export default function Home() {
             entries={entries}
             rotation={rotation}
             spinning={spinning}
+            spinMs={config.spinMs}
             segmentColors={theme.segmentColors}
             onSpinEnd={handleSpinEnd}
           />

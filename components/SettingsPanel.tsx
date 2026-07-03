@@ -4,7 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import {
   DEFAULT_CONFIG,
   DEFAULT_ENTRIES,
+  MAX_SPIN_MS,
   MAX_ZOOM,
+  MIN_SPIN_MS,
   MIN_ZOOM,
   segmentColor,
   type WheelConfig,
@@ -84,6 +86,8 @@ export default function SettingsPanel({
     onSave(clean.length ? clean : DEFAULT_ENTRIES, {
       headline: configDraft.headline.trim() || DEFAULT_CONFIG.headline,
       zoom: Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, configDraft.zoom)),
+      spinMs: Math.min(MAX_SPIN_MS, Math.max(MIN_SPIN_MS, configDraft.spinMs)),
+      autoClose: configDraft.autoClose,
     });
     onThemeSave(theme);
   };
@@ -319,6 +323,47 @@ export default function SettingsPanel({
                 cursor: "pointer",
               }}
             />
+
+            {/* spin speed */}
+            <p style={{ margin: "0 0 0.5rem", opacity: 0.6, fontSize: "0.85rem" }}>
+              Spin duration · {(configDraft.spinMs / 1000).toFixed(1)}s
+            </p>
+            <input
+              type="range"
+              min={MIN_SPIN_MS}
+              max={MAX_SPIN_MS}
+              step={200}
+              value={configDraft.spinMs}
+              onChange={(e) => setConfigDraft((c) => ({ ...c, spinMs: Number(e.target.value) }))}
+              aria-label="Spin duration"
+              style={{
+                width: "100%",
+                accentColor: "var(--gold)",
+                marginBottom: "1.4rem",
+                cursor: "pointer",
+              }}
+            />
+
+            {/* auto-close winner screen */}
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.7rem",
+                marginBottom: "1.4rem",
+                cursor: "pointer",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={configDraft.autoClose}
+                onChange={(e) => setConfigDraft((c) => ({ ...c, autoClose: e.target.checked }))}
+                style={{ width: 18, height: 18, accentColor: "var(--gold)", cursor: "pointer" }}
+              />
+              <span style={{ fontFamily: "var(--font-ui)", fontSize: "0.95rem", color: "var(--cream)" }}>
+                Auto-close winner screen
+              </span>
+            </label>
 
             {/* presets */}
             <p style={{ margin: "0.2rem 0 0.5rem", opacity: 0.6, fontSize: "0.85rem" }}>

@@ -83,7 +83,7 @@ body {
 }
 
 .wheel-spin.is-spinning {
-  transition: transform 5600ms var(--ease-out-expo);
+  transition: transform var(--spin-ms, 5600ms) var(--ease-out-expo);
 }
 
 /* entrance choreography */

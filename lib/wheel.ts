@@ -6,14 +6,24 @@ export type WheelConfig = {
   headline: string;
   /** wheel scale multiplier */
   zoom: number;
+  /** spin duration in milliseconds */
+  spinMs: number;
+  /** auto-dismiss the winner screen after a beat */
+  autoClose: boolean;
 };
 
 export const MIN_ZOOM = 0.6;
 export const MAX_ZOOM = 1.4;
+export const MIN_SPIN_MS = 2000;
+export const MAX_SPIN_MS = 10000;
+/** delay before the winner screen auto-closes, when enabled */
+export const AUTO_CLOSE_MS = 5000;
 
 export const DEFAULT_CONFIG: WheelConfig = {
   headline: "SPIN TO WIN",
   zoom: 1,
+  spinMs: 5600,
+  autoClose: false,
 };
 
 export function loadConfig(): WheelConfig {
@@ -30,7 +40,12 @@ export function loadConfig(): WheelConfig {
       typeof parsed.zoom === "number" && Number.isFinite(parsed.zoom)
         ? Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, parsed.zoom))
         : DEFAULT_CONFIG.zoom;
-    return { headline, zoom };
+    const spinMs =
+      typeof parsed.spinMs === "number" && Number.isFinite(parsed.spinMs)
+        ? Math.min(MAX_SPIN_MS, Math.max(MIN_SPIN_MS, parsed.spinMs))
+        : DEFAULT_CONFIG.spinMs;
+    const autoClose = typeof parsed.autoClose === "boolean" ? parsed.autoClose : DEFAULT_CONFIG.autoClose;
+    return { headline, zoom, spinMs, autoClose };
   } catch {
     return DEFAULT_CONFIG;
   }

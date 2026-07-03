@@ -8,6 +8,7 @@ type Props = {
   entries: string[];
   rotation: number;
   spinning: boolean;
+  spinMs: number;
   segmentColors?: string[];
   onSpinEnd: () => void;
 };
@@ -23,20 +24,22 @@ function truncate(label: string, count: number) {
   return label.length > max ? label.slice(0, max - 1).trimEnd() + "…" : label;
 }
 
-export default function PrizeWheel({ entries, rotation, spinning, segmentColors, onSpinEnd }: Props) {
+export default function PrizeWheel({ entries, rotation, spinning, spinMs, segmentColors, onSpinEnd }: Props) {
   const count = Math.max(entries.length, 1);
   const seg = 360 / count;
   const single = count === 1;
-  const longest = entries.reduce((m, e) => Math.max(m, truncate("" + e, count).length), 1);
-  // ponytail: shrink font so the longest label fits the radial span (~0.85 * RING)
-  const fontSize = Math.min(Math.max(15, Math.min(66, 640 / count)), (RING * 0.85) / (longest * 0.55));
+  // ponytail: size each label on its own length so a long entry doesn't shrink
+  // the short ones too. 640/count is the shared angular cap; the second term is
+  // the per-label radial fit (~0.85 * RING).
+  const labelFont = (label: string) =>
+    Math.min(Math.max(15, Math.min(66, 640 / count)), (RING * 0.85) / (truncate(label, count).length * 0.55));
   const showLabels = count <= 60;
   const bulbCount = Math.min(Math.max(count * 2, 24), 72);
 
   return (
     <div
       className={`wheel-spin ${spinning ? "is-spinning" : ""}`}
-      style={{ ["--rot" as string]: `${rotation}deg` }}
+      style={{ ["--rot" as string]: `${rotation}deg`, ["--spin-ms" as string]: `${spinMs}ms` }}
       onTransitionEnd={(e) => {
         if (e.propertyName === "transform") onSpinEnd();
       }}
@@ -104,6 +107,7 @@ export default function PrizeWheel({ entries, rotation, spinning, segmentColors,
               const mid = (i + 0.5) * seg;
               const pos = polar(mid, RING * 0.62);
               const flip = mid > 90 && mid < 270 ? 180 : 0;
+              const fontSize = labelFont("" + label);
               return (
                 <text
                   key={i}
